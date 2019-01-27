@@ -120,7 +120,7 @@ func TestInsecureEndpoint(t *testing.T) {
 func TestCurrentAssignmentsAndGenesisTime(t *testing.T) {
 	db := internal.SetupDB(t)
 	defer internal.TeardownDB(t, db)
-	mockChain := &mockChainService{}
+	mockChaixn := &mockChainService{}
 
 	genesis := b.NewGenesisBlock([]byte{})
 	if err := db.SaveBlock(genesis); err != nil {
@@ -162,13 +162,13 @@ func TestCurrentAssignmentsAndGenesisTime(t *testing.T) {
 		t.Errorf("Could not generate genesis timestamp %v", err)
 	}
 
-	//if res.GenesisTimestamp.String() != genesisTimeStamp.String() {
-	//	t.Errorf(
-	//		"Received different genesis timestamp, wanted: %v, received: %v",
-	//		genesisTimeStamp.String(),
-	//		res.GenesisTimestamp,
-	//	)
-	//}
+	if res.GenesisTimestamp.String() != genesisTimeStamp.String() {
+		t.Errorf(
+			"Received different genesis timestamp, wanted: %v, received: %v",
+			genesisTimeStamp.String(),
+			res.GenesisTimestamp,
+		)
+	}
 }
 
 func TestProposeBlock(t *testing.T) {
