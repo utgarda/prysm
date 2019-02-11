@@ -35,6 +35,7 @@ func main() {
 	var depositsForChainStart int64
 	var minDepositAmount int64
 	var maxDepositAmount int64
+	var skipChainstartDelay bool
 
 	customFormatter := new(prefixed.TextFormatter)
 	customFormatter.TimestampFormat = "2006-01-02 15:04:05"
@@ -51,6 +52,11 @@ func main() {
 			Name:        "keystoreUTCPath",
 			Usage:       "Location of keystore",
 			Destination: &keystoreUTCPath,
+		},
+		cli.BoolFlag{
+			Name:        "skipChainstartDelay",
+			Usage:       "Whether to skip ChainStart log being fired a day later",
+			Destination: &skipChainstartDelay,
 		},
 		cli.StringFlag{
 			Name:        "ipcPath",
@@ -75,24 +81,24 @@ func main() {
 			Destination: &privKeyString,
 		},
 		cli.StringFlag{
-			Name:        "k8s-config",
+			Name:        "k8sConfig",
 			Usage:       "Name of kubernetes config map to update with the contract address",
 			Destination: &k8sConfigMapName,
 		},
 		cli.Int64Flag{
-			Name:        "chain-start",
+			Name:        "chainStart",
 			Value:       params.ContractConfig().DepositsForChainStart.Int64(),
 			Usage:       "Number of validators required for chain start",
 			Destination: &depositsForChainStart,
 		},
 		cli.Int64Flag{
-			Name:        "min-deposit",
+			Name:        "minDeposit",
 			Value:       params.ContractConfig().MinDepositAmount.Int64(),
 			Usage:       "Minimum deposit value allowed in contract",
 			Destination: &minDepositAmount,
 		},
 		cli.Int64Flag{
-			Name:        "max-deposit",
+			Name:        "maxDeposit",
 			Value:       params.ContractConfig().MaxDepositAmount.Int64(),
 			Usage:       "Maximum deposit value allowed in contract",
 			Destination: &maxDepositAmount,
@@ -121,10 +127,11 @@ func main() {
 		if privKeyString != "" {
 			privKey, err := crypto.HexToECDSA(privKeyString)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("Could not read privkey: %v: %v", privKeyString, err)
 			}
 			txOps = bind.NewKeyedTransactor(privKey)
 			txOps.Value = big.NewInt(0)
+			txOps.GasLimit = 4000000
 
 			// User inputs keystore json file, sign tx with keystore json
 		} else {
@@ -151,12 +158,16 @@ func main() {
 
 			txOps = bind.NewKeyedTransactor(privKey.PrivateKey)
 			txOps.Value = big.NewInt(0)
+			txOps.GasLimit = 4000000
 		}
 
 		// Deploy validator registration contract
 		addr, tx, _, err := contracts.DeployDepositContract(
 			txOps, client, big.NewInt(depositsForChainStart),
-			big.NewInt(minDepositAmount), big.NewInt(maxDepositAmount))
+			big.NewInt(minDepositAmount), big.NewInt(maxDepositAmount),
+			skipChainstartDelay,
+		)
+
 		if err != nil {
 			log.Fatal(err)
 		}
