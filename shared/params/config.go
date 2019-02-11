@@ -94,7 +94,7 @@ type ShardChainConfig struct {
 
 var defaultBeaconConfig = &BeaconChainConfig{
 	// Misc constant.
-	ShardCount:                 1024,
+	ShardCount:                 1,
 	TargetCommitteeSize:        128,
 	MaxBalanceChurnQuotient:    32,
 	BeaconChainShardNumber:     1<<64 - 1,
@@ -109,9 +109,9 @@ var defaultBeaconConfig = &BeaconChainConfig{
 	DepositContractTreeDepth: 32,
 
 	// Gwei values:
-	MinDepositAmount: 1 * 1e9,
-	MaxDepositAmount: 32 * 1e9,
-	EjectionBalance:  16 * 1e9,
+	MinDepositAmount: 100,
+	MaxDepositAmount: 3200,
+	EjectionBalance:  1600,
 
 	// Initial value constants.
 	GenesisForkVersion: 0,
@@ -123,9 +123,9 @@ var defaultBeaconConfig = &BeaconChainConfig{
 	EmptySignature:     makeEmptySignature(),
 
 	// Time parameter constants.
-	SlotDuration:                 6,
+	SlotDuration:                 5,
 	MinAttestationInclusionDelay: 4,
-	EpochLength:                  64,
+	EpochLength:                  8,
 	SeedLookahead:                1,
 	EntryExitDelay:               4,
 	Eth1DataVotingPeriod:         16,
@@ -145,7 +145,7 @@ var defaultBeaconConfig = &BeaconChainConfig{
 	MaxAttesterSlashings: 1,
 
 	// Prysm constants.
-	DepositsForChainStart: 16384,
+	DepositsForChainStart: 8,
 	RandBytes:             3,
 	SyncPollingInterval:   6 * 4, // Query nodes over the network every 4 slots for sync status.
 	GenesisTime:           time.Date(2018, 9, 0, 0, 0, 0, 0, time.UTC),
@@ -154,8 +154,8 @@ var defaultBeaconConfig = &BeaconChainConfig{
 
 var demoBeaconConfig = &BeaconChainConfig{
 	// Misc constant.
-	ShardCount:                 5,
-	TargetCommitteeSize:        3,
+	ShardCount:                 1,
+	TargetCommitteeSize:        1,
 	EjectionBalance:            defaultBeaconConfig.EjectionBalance,
 	MaxBalanceChurnQuotient:    defaultBeaconConfig.MaxBalanceChurnQuotient,
 	BeaconChainShardNumber:     defaultBeaconConfig.BeaconChainShardNumber,
@@ -181,7 +181,7 @@ var demoBeaconConfig = &BeaconChainConfig{
 	EmptySignature:     defaultBeaconConfig.EmptySignature,
 
 	// Time parameter constants.
-	SlotDuration:                 2,
+	SlotDuration:                 5,
 	MinAttestationInclusionDelay: defaultBeaconConfig.MinAttestationInclusionDelay,
 	EpochLength:                  defaultBeaconConfig.EpochLength,
 	SeedLookahead:                defaultBeaconConfig.SeedLookahead,
@@ -217,9 +217,9 @@ var defaultShardConfig = &ShardChainConfig{
 }
 
 var defaultDepositContractConfig = &DepositContractConfig{
-	DepositsForChainStart: big.NewInt(16384),
-	MinDepositAmount:      big.NewInt(1e9),
-	MaxDepositAmount:      big.NewInt(32e9),
+	DepositsForChainStart: big.NewInt(8),
+	MinDepositAmount:      big.NewInt(100),
+	MaxDepositAmount:      big.NewInt(3200),
 }
 
 var beaconConfig = defaultBeaconConfig
