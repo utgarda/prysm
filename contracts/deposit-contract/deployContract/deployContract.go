@@ -127,10 +127,11 @@ func main() {
 		if privKeyString != "" {
 			privKey, err := crypto.HexToECDSA(privKeyString)
 			if err != nil {
-				log.Fatal(err)
+				log.Fatalf("Could not read privkey: %v: %v", privKeyString, err)
 			}
 			txOps = bind.NewKeyedTransactor(privKey)
 			txOps.Value = big.NewInt(0)
+			txOps.GasLimit = 4000000
 
 			// User inputs keystore json file, sign tx with keystore json
 		} else {
@@ -157,6 +158,7 @@ func main() {
 
 			txOps = bind.NewKeyedTransactor(privKey.PrivateKey)
 			txOps.Value = big.NewInt(0)
+			txOps.GasLimit = 4000000
 		}
 
 		// Deploy validator registration contract

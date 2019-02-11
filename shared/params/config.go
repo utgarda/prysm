@@ -95,7 +95,7 @@ type ShardChainConfig struct {
 var defaultBeaconConfig = &BeaconChainConfig{
 	// Misc constant.
 	ShardCount:                 1,
-	TargetCommitteeSize:        128,
+	TargetCommitteeSize:        2,
 	MaxBalanceChurnQuotient:    32,
 	BeaconChainShardNumber:     1<<64 - 1,
 	MaxIndicesPerSlashableVote: 1,
@@ -125,7 +125,7 @@ var defaultBeaconConfig = &BeaconChainConfig{
 	// Time parameter constants.
 	SlotDuration:                 5,
 	MinAttestationInclusionDelay: 4,
-	EpochLength:                  8,
+	EpochLength:                  4,
 	SeedLookahead:                1,
 	EntryExitDelay:               4,
 	Eth1DataVotingPeriod:         16,
@@ -155,7 +155,7 @@ var defaultBeaconConfig = &BeaconChainConfig{
 var demoBeaconConfig = &BeaconChainConfig{
 	// Misc constant.
 	ShardCount:                 1,
-	TargetCommitteeSize:        1,
+	TargetCommitteeSize:        2,
 	EjectionBalance:            defaultBeaconConfig.EjectionBalance,
 	MaxBalanceChurnQuotient:    defaultBeaconConfig.MaxBalanceChurnQuotient,
 	BeaconChainShardNumber:     defaultBeaconConfig.BeaconChainShardNumber,
