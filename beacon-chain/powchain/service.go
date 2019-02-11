@@ -232,6 +232,9 @@ func (w *Web3Service) ProcessDepositLog(VRClog gethTypes.Log) {
 		log.Errorf("Could not unpack log %v", err)
 		return
 	}
+	log.Infof("Merkle root: %#x", merkleRoot)
+	log.Infof("Merkle index: %d", MerkleTreeIndex)
+	log.Infof("Deposit data: %#x", depositData)
 	if err := w.saveInTrie(depositData, merkleRoot); err != nil {
 		log.Errorf("Could not save in trie %v", err)
 		return
