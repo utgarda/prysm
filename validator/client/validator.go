@@ -3,9 +3,10 @@ package client
 
 import (
 	"context"
-	"github.com/prysmaticlabs/prysm/shared/keystore"
 	"io"
 	"time"
+
+	"github.com/prysmaticlabs/prysm/shared/keystore"
 
 	ptypes "github.com/gogo/protobuf/types"
 
@@ -147,10 +148,10 @@ func (v *validator) RoleAt(slot uint64) pb.ValidatorRole {
 	if v.assignment == nil {
 		return pb.ValidatorRole_UNKNOWN
 	}
-	if v.assignment.AttesterSlot == slot {
-		return pb.ValidatorRole_ATTESTER
-	} else if v.assignment.ProposerSlot == slot {
+	if v.assignment.ProposerSlot == slot {
 		return pb.ValidatorRole_PROPOSER
+	} else if v.assignment.AttesterSlot == slot {
+		return pb.ValidatorRole_ATTESTER
 	}
 	return pb.ValidatorRole_UNKNOWN
 }

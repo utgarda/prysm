@@ -3,6 +3,7 @@ package helpers
 import (
 	"encoding/binary"
 	"fmt"
+
 	"github.com/prysmaticlabs/prysm/beacon-chain/utils"
 	pb "github.com/prysmaticlabs/prysm/proto/beacon/p2p/v1"
 	"github.com/prysmaticlabs/prysm/shared/bitutil"
@@ -36,7 +37,7 @@ func EpochCommitteeCount(activeValidatorCount uint64) uint64 {
 	var maxCommitteePerSlot = params.BeaconConfig().ShardCount / params.BeaconConfig().EpochLength
 	var currCommitteePerSlot = activeValidatorCount / params.BeaconConfig().EpochLength / params.BeaconConfig().TargetCommitteeSize
 	if maxCommitteePerSlot == 0 {
-		maxCommitteePerSlot	 = 1
+		maxCommitteePerSlot = 1
 	}
 	if currCommitteePerSlot > maxCommitteePerSlot {
 		return maxCommitteePerSlot * params.BeaconConfig().EpochLength

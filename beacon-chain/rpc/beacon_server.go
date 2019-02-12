@@ -20,7 +20,7 @@ import (
 type BeaconServer struct {
 	beaconDB            *db.BeaconDB
 	ctx                 context.Context
-	chainService chainService
+	chainService        chainService
 	powChainService     powChainService
 	operationService    operationService
 	incomingAttestation chan *pbp2p.Attestation
@@ -28,10 +28,10 @@ type BeaconServer struct {
 	chainStartChan      chan time.Time
 }
 
-// WaitForChainStart queries the logs of the Deposit Contract in order to verify the beacon chain
+// WaitForChainStart queries the Deposit Contract in order to verify the beacon chain
 // has started its runtime and validators begin their responsibilities. If it has not, it then
-// subscribes to an event stream triggered by the powchain service whenever the ChainStart log does
-// occur in the Deposit Contract on ETH 1.0. TODO: Update this.
+// subscribes to an event stream triggered by the chain service whenever the ChainStart log does
+// occur in the Deposit Contract on ETH 1.0 AND the genesis beacon state in the node is fully initialized.
 func (bs *BeaconServer) WaitForChainStart(req *ptypes.Empty, stream pb.BeaconService_WaitForChainStartServer) error {
 	ok, genesisTime, err := bs.powChainService.HasChainStartLogOccurred()
 	if err != nil {

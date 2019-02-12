@@ -27,17 +27,17 @@ var log = logrus.WithField("prefix", "blockchain")
 // ChainService represents a service that handles the internal
 // logic of managing the full PoS beacon chain.
 type ChainService struct {
-	ctx                context.Context
-	cancel             context.CancelFunc
-	beaconDB           *db.BeaconDB
-	web3Service        *powchain.Web3Service
-	incomingBlockFeed  *event.Feed
-	incomingBlockChan  chan *pb.BeaconBlock
-	genesisTimeChan    chan time.Time
-	canonicalBlockFeed *event.Feed
-	canonicalStateFeed *event.Feed
-	genesisTime        time.Time
-	enablePOWChain     bool
+	ctx                  context.Context
+	cancel               context.CancelFunc
+	beaconDB             *db.BeaconDB
+	web3Service          *powchain.Web3Service
+	incomingBlockFeed    *event.Feed
+	incomingBlockChan    chan *pb.BeaconBlock
+	genesisTimeChan      chan time.Time
+	canonicalBlockFeed   *event.Feed
+	canonicalStateFeed   *event.Feed
+	genesisTime          time.Time
+	enablePOWChain       bool
 	stateInitializedFeed *event.Feed
 }
 
@@ -56,17 +56,17 @@ type Config struct {
 func NewChainService(ctx context.Context, cfg *Config) (*ChainService, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	return &ChainService{
-		ctx:                ctx,
-		cancel:             cancel,
-		beaconDB:           cfg.BeaconDB,
-		web3Service:        cfg.Web3Service,
-		incomingBlockChan:  make(chan *pb.BeaconBlock, cfg.IncomingBlockBuf),
-		genesisTimeChan:    make(chan time.Time),
-		incomingBlockFeed:  new(event.Feed),
-		canonicalBlockFeed: new(event.Feed),
-		canonicalStateFeed: new(event.Feed),
+		ctx:                  ctx,
+		cancel:               cancel,
+		beaconDB:             cfg.BeaconDB,
+		web3Service:          cfg.Web3Service,
+		incomingBlockChan:    make(chan *pb.BeaconBlock, cfg.IncomingBlockBuf),
+		genesisTimeChan:      make(chan time.Time),
+		incomingBlockFeed:    new(event.Feed),
+		canonicalBlockFeed:   new(event.Feed),
+		canonicalStateFeed:   new(event.Feed),
 		stateInitializedFeed: new(event.Feed),
-		enablePOWChain:     cfg.EnablePOWChain,
+		enablePOWChain:       cfg.EnablePOWChain,
 	}, nil
 }
 

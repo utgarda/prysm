@@ -8,6 +8,7 @@ go_library(
     ],
     importpath = "github.com/prysmaticlabs/prysm/shared/slotutil",
     visibility = ["//visibility:public"],
+    deps = ["//shared/params:go_default_library"],
 )
 
 go_test(

@@ -1,8 +1,9 @@
 package slotutil
 
 import (
-	"github.com/prysmaticlabs/prysm/shared/params"
 	"time"
+
+	"github.com/prysmaticlabs/prysm/shared/params"
 )
 
 // SlotTicker is a special ticker for the beacon chain block.
@@ -76,7 +77,7 @@ func (s *SlotTicker) start(
 		} else {
 			nextTick := sinceGenesis.Truncate(d) + d
 			nextTickTime = genesisTime.Add(nextTick)
-			slot = uint64(nextTick / d) + params.BeaconConfig().GenesisSlot
+			slot = uint64(nextTick/d) + params.BeaconConfig().GenesisSlot
 		}
 
 		for {
