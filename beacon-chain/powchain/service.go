@@ -227,12 +227,12 @@ func (w *Web3Service) ProcessLog(VRClog gethTypes.Log) {
 // the ETH1.0 chain by trying to ascertain which participant deposited
 // in the contract.
 func (w *Web3Service) ProcessDepositLog(VRClog gethTypes.Log) {
-	merkleRoot, depositData, merkleIndex, branch, err := contracts.UnpackDepositLogData(VRClog.Data)
+	merkleRoot, depositData, merkleIndex, _, err := contracts.UnpackDepositLogData(VRClog.Data)
 	if err != nil {
 		log.Errorf("Could not unpack log %v", err)
 		return
 	}
-	if err := w.saveInTrie(depositData, merkleRoot, branch, merkleIndex); err != nil {
+	if err := w.saveInTrie(depositData, merkleRoot); err != nil {
 		log.Errorf("Could not save in trie %v", err)
 		return
 	}
@@ -360,22 +360,8 @@ func (w *Web3Service) initDataFromContract() error {
 }
 
 // saveInTrie saves in the in-memory deposit trie.
-func (w *Web3Service) saveInTrie(depositData []byte, merkleRoot common.Hash, branch [32][32]byte, index []byte) error {
-	merklePath := [][]byte{}
-	for _, v := range branch {
-		merklePath = append(merklePath, v[:])
-	}
-	log.Infof("%v", merklePath)
+func (w *Web3Service) saveInTrie(depositData []byte, merkleRoot common.Hash) error {
 	log.Infof("%#x", merkleRoot)
-	log.Infof("%v", index)
-	if ok := trieutil.VerifyMerkleBranch(
-        merklePath,
-		merkleRoot,
-		index,
-	); ok{
-		log.Debug("Branch already exists in Merkle trie for deposit (log received twice)")
-		return nil
-	}
 	w.depositTrie.UpdateDepositTrie(depositData)
 	if w.depositTrie.Root() != merkleRoot {
 		return errors.New("saved root in trie is unequal to root received from log")
