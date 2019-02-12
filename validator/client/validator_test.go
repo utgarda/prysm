@@ -182,7 +182,7 @@ func TestUpdateAssignments_DoesNothingWhenNotEpochStart(t *testing.T) {
 		gomock.Any(),
 	).Times(0)
 
-	if err := v.UpdateAssignments(context.Background(), slot); err != nil {
+	if err := v.UpdateAssignments(context.Background(), slot, false); err != nil {
 		t.Errorf("Could not update assignments: %v", err)
 	}
 }
@@ -208,7 +208,7 @@ func TestUpdateAssignments_ReturnsError(t *testing.T) {
 		gomock.Any(),
 	).Return(nil, expected)
 
-	if err := v.UpdateAssignments(context.Background(), params.BeaconConfig().EpochLength); err != expected {
+	if err := v.UpdateAssignments(context.Background(), params.BeaconConfig().EpochLength, false); err != expected {
 		t.Errorf("Bad error; want=%v got=%v", expected, err)
 	}
 }
@@ -238,7 +238,7 @@ func TestUpdateAssignments_DoesUpdateAssignments(t *testing.T) {
 		gomock.Any(),
 	).Return(resp, nil)
 
-	if err := v.UpdateAssignments(context.Background(), slot); err != nil {
+	if err := v.UpdateAssignments(context.Background(), slot, false); err != nil {
 		t.Fatalf("Could not update assignments: %v", err)
 	}
 

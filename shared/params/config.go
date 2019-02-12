@@ -95,14 +95,14 @@ type ShardChainConfig struct {
 var defaultBeaconConfig = &BeaconChainConfig{
 	// Misc constant.
 	ShardCount:                 1,
-	TargetCommitteeSize:        2,
-	MaxBalanceChurnQuotient:    32,
-	BeaconChainShardNumber:     1<<64 - 1,
+	TargetCommitteeSize:        1,
+	MaxBalanceChurnQuotient:    32 / 8,
+	BeaconChainShardNumber:     (1<<64 - 1) /8,
 	MaxIndicesPerSlashableVote: 1,
-	LatestBlockRootsLength:     8192,
-	LatestRandaoMixesLength:    8192,
-	LatestPenalizedExitLength:  8192,
-	LatestIndexRootsLength:     8192,
+	LatestBlockRootsLength:     8192 / 8,
+	LatestRandaoMixesLength:    8192 / 8,
+	LatestPenalizedExitLength:  8192 / 8,
+	LatestIndexRootsLength:     8192 / 8,
 	MaxWithdrawalsPerEpoch:     4,
 
 	// Deposit contract constants.
@@ -115,17 +115,17 @@ var defaultBeaconConfig = &BeaconChainConfig{
 
 	// Initial value constants.
 	GenesisForkVersion: 0,
-	GenesisSlot:        1 << 63,
-	GenesisEpoch:       1 << 63 / 64,
+	GenesisSlot:        (1 << 63) / 9,
+	GenesisEpoch:       (1 << 63 / 64) / 8,
 	GenesisStartShard:  0,
-	FarFutureEpoch:     1<<64 - 1,
+	FarFutureEpoch:     (1<<64 - 1) / 8,
 	ZeroHash:           [32]byte{},
 	EmptySignature:     makeEmptySignature(),
 
 	// Time parameter constants.
 	SlotDuration:                 5,
 	MinAttestationInclusionDelay: 4,
-	EpochLength:                  4,
+	EpochLength:                  8,
 	SeedLookahead:                1,
 	EntryExitDelay:               4,
 	Eth1DataVotingPeriod:         16,
@@ -155,7 +155,7 @@ var defaultBeaconConfig = &BeaconChainConfig{
 var demoBeaconConfig = &BeaconChainConfig{
 	// Misc constant.
 	ShardCount:                 1,
-	TargetCommitteeSize:        2,
+	TargetCommitteeSize:        1,
 	EjectionBalance:            defaultBeaconConfig.EjectionBalance,
 	MaxBalanceChurnQuotient:    defaultBeaconConfig.MaxBalanceChurnQuotient,
 	BeaconChainShardNumber:     defaultBeaconConfig.BeaconChainShardNumber,

@@ -102,9 +102,24 @@ func (v *validator) NextSlot() <-chan uint64 {
 // UpdateAssignments checks the slot number to determine if the validator's
 // list of upcoming assignments needs to be updated. For example, at the
 // beginning of a new epoch.
-func (v *validator) UpdateAssignments(ctx context.Context, slot uint64) error {
+func (v *validator) UpdateAssignments(ctx context.Context, slot uint64, initialAssignments bool) error {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "validator.UpdateAssignments")
 	defer span.Finish()
+
+	if initialAssignments {
+		req := &pb.ValidatorEpochAssignmentsRequest{
+			EpochStart: params.BeaconConfig().GenesisSlot,
+			PublicKey:  v.key.PublicKey.Serialize(),
+		}
+
+		resp, err := v.validatorClient.ValidatorEpochAssignments(ctx, req)
+		if err != nil {
+			return err
+		}
+
+		v.assignment = resp.Assignment
+		return nil
+	}
 
 	if slot%params.BeaconConfig().EpochLength != 0 {
 		// Do nothing if not epoch start.

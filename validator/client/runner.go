@@ -14,7 +14,7 @@ type Validator interface {
 	WaitForChainStart(ctx context.Context)
 	WaitForActivation(ctx context.Context)
 	NextSlot() <-chan uint64
-	UpdateAssignments(ctx context.Context, slot uint64) error
+	UpdateAssignments(ctx context.Context, slot uint64, initialAssignments bool) error
 	RoleAt(slot uint64) pb.ValidatorRole
 	AttestToBlockHead(ctx context.Context, slot uint64)
 	ProposeBlock(ctx context.Context, slot uint64)
@@ -34,6 +34,9 @@ func run(ctx context.Context, v Validator) {
 	defer v.Done()
 	v.WaitForChainStart(ctx)
 	v.WaitForActivation(ctx)
+	if err := v.UpdateAssignments(ctx, slot, true /* initial assignments */); err != nil {
+		log.WithField("error", err).Error("Failed to update assignments")
+	}
 	span, ctx := opentracing.StartSpanFromContext(ctx, "processSlot")
 	defer span.Finish()
 	for {
@@ -42,7 +45,7 @@ func run(ctx context.Context, v Validator) {
 			log.Info("Context cancelled, stopping validator")
 			return // Exit if context is cancelled.
 		case slot := <-v.NextSlot():
-			if err := v.UpdateAssignments(ctx, slot); err != nil {
+			if err := v.UpdateAssignments(ctx, slot, false); err != nil {
 				log.WithField("error", err).Error("Failed to update assignments")
 				continue
 			}
