@@ -38,6 +38,7 @@ type ChainService struct {
 	canonicalStateFeed *event.Feed
 	genesisTime        time.Time
 	enablePOWChain     bool
+	stateInitializedFeed *event.Feed
 }
 
 // Config options for the service.
@@ -64,6 +65,7 @@ func NewChainService(ctx context.Context, cfg *Config) (*ChainService, error) {
 		incomingBlockFeed:  new(event.Feed),
 		canonicalBlockFeed: new(event.Feed),
 		canonicalStateFeed: new(event.Feed),
+		stateInitializedFeed: new(event.Feed),
 		enablePOWChain:     cfg.EnablePOWChain,
 	}, nil
 }
@@ -78,37 +80,6 @@ func (c *ChainService) Start() {
 	if beaconState != nil {
 		log.Info("Beacon chain data already exists, starting service")
 		c.genesisTime = time.Unix(int64(beaconState.GenesisTime), 0)
-		//
-		//var shard uint64
-		//var attesterSlot uint64
-		//var proposerSlot uint64
-		//
-		//for slot := params.BeaconConfig().GenesisSlot; slot < params.BeaconConfig().GenesisSlot+params.BeaconConfig().EpochLength; slot++ {
-		//	crossLinkCommittees, err := helpers.CrosslinkCommitteesAtSlot(beaconState, slot, false)
-		//	if err != nil {
-        //        log.Fatal(err)
-		//	}
-		//	proposerIndex, err := validators.BeaconProposerIdx(beaconState, slot)
-		//	if err != nil {
-        //        log.Fatal(err)
-		//	}
-		//	if proposerIndex == 0 {
-		//		proposerSlot = slot
-		//	}
-		//	for _, committee := range crossLinkCommittees {
-		//		for _, idx := range committee.Committee {
-		//			if idx == 0 {
-		//				attesterSlot = slot
-		//				shard = committee.Shard
-		//			}
-		//		}
-		//	}
-		//	log.Infof("Slot: %d", slot)
-		//	log.Infof("Proposer index: %d", proposerIndex)
-		//}
-		//log.Infof("Proposer slot: %d", proposerSlot)
-		//log.Infof("Attester slot: %d", attesterSlot)
-		//log.Infof("Shard: %d", shard)
 		go c.blockProcessing()
 	} else {
 		log.Info("Waiting for ChainStart log from the Validator Deposit Contract to start the beacon chain...")
@@ -123,6 +94,8 @@ func (c *ChainService) Start() {
 			if err := c.initializeBeaconChain(genesisTime, initialDeposits); err != nil {
 				log.Fatalf("Could not initialize beacon chain: %v", err)
 			}
+			// TODO: Send to RPC server here that the state is ready for assignments.
+			c.stateInitializedFeed.Send(genesisTime)
 			go c.blockProcessing()
 			subChainStart.Unsubscribe()
 		}()
@@ -184,6 +157,12 @@ func (c *ChainService) CanonicalBlockFeed() *event.Feed {
 // whenever a new state is determined to be canonical in the chain.
 func (c *ChainService) CanonicalStateFeed() *event.Feed {
 	return c.canonicalStateFeed
+}
+
+// StateInitializedFeed returns a feed that is written to
+// when the beacon state is first initialized.
+func (c *ChainService) StateInitializedFeed() *event.Feed {
+	return c.stateInitializedFeed
 }
 
 // doesPoWBlockExist checks if the referenced PoW block exists.

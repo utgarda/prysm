@@ -20,6 +20,7 @@ import (
 type BeaconServer struct {
 	beaconDB            *db.BeaconDB
 	ctx                 context.Context
+	chainService chainService
 	powChainService     powChainService
 	operationService    operationService
 	incomingAttestation chan *pbp2p.Attestation
@@ -30,7 +31,7 @@ type BeaconServer struct {
 // WaitForChainStart queries the logs of the Deposit Contract in order to verify the beacon chain
 // has started its runtime and validators begin their responsibilities. If it has not, it then
 // subscribes to an event stream triggered by the powchain service whenever the ChainStart log does
-// occur in the Deposit Contract on ETH 1.0.
+// occur in the Deposit Contract on ETH 1.0. TODO: Update this.
 func (bs *BeaconServer) WaitForChainStart(req *ptypes.Empty, stream pb.BeaconService_WaitForChainStartServer) error {
 	ok, genesisTime, err := bs.powChainService.HasChainStartLogOccurred()
 	if err != nil {
@@ -43,8 +44,7 @@ func (bs *BeaconServer) WaitForChainStart(req *ptypes.Empty, stream pb.BeaconSer
 		}
 		return stream.Send(res)
 	}
-
-	sub := bs.powChainService.ChainStartFeed().Subscribe(bs.chainStartChan)
+	sub := bs.chainService.StateInitializedFeed().Subscribe(bs.chainStartChan)
 	defer sub.Unsubscribe()
 	for {
 		select {
