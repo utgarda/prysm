@@ -47,6 +47,8 @@ func (vs *ValidatorServer) ValidatorEpochAssignments(
 	if err != nil {
 		return nil, fmt.Errorf("could not get beacon state: %v", err)
 	}
+	log.Infof("Pubkey: %#x", req.PublicKey)
+	log.Infof("Registry: %d", len(beaconState.ValidatorRegistry))
 	validatorIndex, err := v.ValidatorIdx(req.PublicKey, beaconState.ValidatorRegistry)
 	if err != nil {
 		return nil, fmt.Errorf("could not get active validator index: %v", err)

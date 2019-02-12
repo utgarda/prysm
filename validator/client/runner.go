@@ -3,10 +3,10 @@ package client
 import (
 	"context"
 	"github.com/prysmaticlabs/prysm/shared/params"
+	"github.com/sirupsen/logrus"
 
 	"github.com/opentracing/opentracing-go"
 	pb "github.com/prysmaticlabs/prysm/proto/beacon/rpc/v1"
-	"github.com/sirupsen/logrus"
 )
 
 // Validator interface defines the primary methods of a validator client.

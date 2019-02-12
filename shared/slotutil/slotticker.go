@@ -1,6 +1,7 @@
 package slotutil
 
 import (
+	"github.com/prysmaticlabs/prysm/shared/params"
 	"time"
 )
 
@@ -69,13 +70,13 @@ func (s *SlotTicker) start(
 		var nextTickTime time.Time
 		var slot uint64
 		if sinceGenesis < 0 {
-			// Handle when the current time is before the genesis time
+			// Handle when the current time is before the genesis time.
 			nextTickTime = genesisTime
-			slot = 0
+			slot = params.BeaconConfig().GenesisSlot
 		} else {
 			nextTick := sinceGenesis.Truncate(d) + d
 			nextTickTime = genesisTime.Add(nextTick)
-			slot = uint64(nextTick / d)
+			slot = uint64(nextTick / d) + params.BeaconConfig().GenesisSlot
 		}
 
 		for {
