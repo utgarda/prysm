@@ -4,9 +4,6 @@ DATA_PATH=/tmp/data
 PASSWORD_PATH=$DATA_PATH/password.txt
 PASSWORD="password"
 
-SESSION=8validators
-
-
 bazel build //validator
 
 for i in `seq 1 8`;
