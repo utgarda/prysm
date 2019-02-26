@@ -7,7 +7,7 @@ DATA_PATH=/tmp/data
 rm -rf $DATA_PATH
 mkdir -p $DATA_PATH
 
-CONTRACT="0x76126e5FC5B14Eff1724F1B54e13f728Ebd4E637"
+CONTRACT="0xa5f48Bd414fdF5143FE037a7ed399B95C39a6e6e"
 PASSWORD="password"
 PASSWORD_PATH=$DATA_PATH/password.txt
 
@@ -29,5 +29,6 @@ do
     --depositContract=$CONTRACT \
     --numberOfDeposits=1 \
     --privKey=$(cat $PRIVATE_KEY_PATH) \
-    --prysm-keystore=$KEYSTORE
+    --prysm-keystore=$KEYSTORE \
+    --depositAmount=3200000
 done
