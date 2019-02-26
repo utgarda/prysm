@@ -11,6 +11,7 @@ This is a utility to help users deploy deposit contract for running their own be
    sendDepositTx [global options] command [command options] [arguments...]
 
 *Flags:*  
+
 - --keystoreUTCPath value   Location of keystore
 - --ipcPath value           Filename for IPC socket/pipe within the datadir
 - --httpPath value          HTTP-RPC server listening interface (default: "http://localhost:8545/")
@@ -26,12 +27,13 @@ This is a utility to help users deploy deposit contract for running their own be
 - --version, -v             print the version
 
 
+
 ### Example
 
 To use private key with default RPC:
 
 ```
-bazel run //contracts/deposit-contract/sendDepositTx -- --httpPath=https://goerli.prylabs.net --keystoreUTCPath /path/to/keystore --passwordFile /path/to/password --depositDelay 2  --depositContract 0x767E9ef9610Abb992099b0994D5e0c164C0813Ab
+bazel run //contracts/deposit-contract/sendDepositTx -- --httpPath=https://goerli.prylabs.net --keystoreUTCPath /path/to/keystore --passwordFile /path/to/password --depositDelay 2  --depositContract 0x767E9ef9610Abb992099b0994D5e0c164C0813Ab --random-key
 
 ```
 
