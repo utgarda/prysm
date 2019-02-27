@@ -119,7 +119,7 @@ func NextEpochCommitteeCount(state *pb.BeaconState) uint64 {
 // in that committee.
 //   def get_crosslink_committees_at_slot(state: BeaconState,
 //                                     slot: SlotNumber,
-//                                     registry_change=False: bool) -> List[Tuple[List[ValidatorIndex], ShardNumber]]:
+//                                     registry_change=False: bool) -> List[Tuple[List[ValidatorIndex], Shard]]:
 //    """
 //    Return the list of ``(committee, shard)`` tuples for the ``slot``.
 //
@@ -135,7 +135,7 @@ func NextEpochCommitteeCount(state *pb.BeaconState) uint64 {
 //
 //    if epoch == current_epoch:
 //        committees_per_epoch = get_current_epoch_committee_count(state)
-//        seed = state.current_epoch_seed
+//        seed = state.current_shuffling_seed
 //        shuffling_epoch = state.current_calculation_epoch
 //        shuffling_start_shard = state.current_epoch_start_shard
 //    elif epoch == previous_epoch:
@@ -144,18 +144,22 @@ func NextEpochCommitteeCount(state *pb.BeaconState) uint64 {
 //        shuffling_epoch = state.previous_shuffling_epoch
 //        shuffling_start_shard = state.previous_shuffling_start_shard
 //    elif epoch == next_epoch:
-//        current_committees_per_epoch = get_current_epoch_committee_count(state)
-//        committees_per_epoch = get_next_epoch_committee_count(state)
-//        shuffling_epoch = next_epoch
 //
 //        epochs_since_last_registry_update = current_epoch - state.validator_registry_update_epoch
 //        if registry_change:
+//            committees_per_epoch = get_next_epoch_committee_count(state)
+//            shuffling_epoch = next_epoch
 //            seed = generate_seed(state, next_epoch)
+//            current_committees_per_epoch = get_current_epoch_committee_count(state)
 //            shuffling_start_shard = (state.current_epoch_start_shard + current_committees_per_epoch) % SHARD_COUNT
 //        elif epochs_since_last_registry_update > 1 and is_power_of_two(epochs_since_last_registry_update):
+//            committees_per_epoch = get_next_epoch_committee_count(state)
+//            shuffling_epoch = next_epoch
 //            seed = generate_seed(state, next_epoch)
 //            shuffling_start_shard = state.current_epoch_start_shard
 //        else:
+//            committees_per_epoch = get_current_epoch_committee_count(state)
+//            shuffling_epoch = state.current_shuffling_epoch
 //            seed = state.current_epoch_seed
 //            shuffling_start_shard = state.current_epoch_start_shard
 //
@@ -200,7 +204,7 @@ func CrosslinkCommitteesAtSlot(
 	}
 
 	if wantedEpoch == currentEpoch {
-		committeesPerEpoch = PrevEpochCommitteeCount(state)
+		committeesPerEpoch = CurrentEpochCommitteeCount(state)
 		seed = bytesutil.ToBytes32(state.CurrentShufflingSeedHash32)
 		shufflingEpoch = state.CurrentShufflingEpoch
 		shufflingStartShard = state.CurrentShufflingStartShard
@@ -210,13 +214,13 @@ func CrosslinkCommitteesAtSlot(
 		shufflingEpoch = state.PreviousShufflingEpoch
 		shufflingStartShard = state.PreviousShufflingStartShard
 	} else if wantedEpoch == nextEpoch {
-		currentCommitteesPerEpoch := CurrentEpochCommitteeCount(state)
-		committeesPerEpoch = NextEpochCommitteeCount(state)
-		shufflingEpoch = nextEpoch
 
 		epochsSinceLastRegistryUpdate := currentEpoch - state.ValidatorRegistryUpdateEpoch
 		if registryChange {
+			committeesPerEpoch = NextEpochCommitteeCount(state)
+			shufflingEpoch = nextEpoch
 			seed, err = GenerateSeed(state, nextEpoch)
+			currentCommitteesPerEpoch := CurrentEpochCommitteeCount(state)
 			if err != nil {
 				return nil, fmt.Errorf("could not generate seed: %v", err)
 			}
@@ -224,12 +228,16 @@ func CrosslinkCommitteesAtSlot(
 				params.BeaconConfig().ShardCount
 		} else if epochsSinceLastRegistryUpdate > 1 &&
 			mathutil.IsPowerOf2(epochsSinceLastRegistryUpdate) {
+			committeesPerEpoch = NextEpochCommitteeCount(state)
+			shufflingEpoch = nextEpoch
 			seed, err = GenerateSeed(state, nextEpoch)
 			if err != nil {
 				return nil, fmt.Errorf("could not generate seed: %v", err)
 			}
 			shufflingStartShard = state.CurrentShufflingStartShard
 		} else {
+			committeesPerEpoch = CurrentEpochCommitteeCount(state)
+			shufflingEpoch = state.CurrentShufflingEpoch
 			seed = bytesutil.ToBytes32(state.CurrentShufflingSeedHash32)
 			shufflingStartShard = state.CurrentShufflingStartShard
 		}
@@ -264,7 +272,7 @@ func CrosslinkCommitteesAtSlot(
 // Spec pseudocode definition:
 //   def get_shuffling(seed: Bytes32,
 //                  validators: List[Validator],
-//                  epoch: EpochNumber) -> List[List[ValidatorIndex]]
+//                  epoch: Epoch) -> List[List[ValidatorIndex]]
 //    """
 //    Shuffle ``validators`` into crosslink committees seeded by ``seed`` and ``epoch``.
 //    Return a list of ``committees_per_epoch`` committees where each
@@ -425,7 +433,7 @@ func VerifyBitfield(bitfield []byte, committeeSize int) (bool, error) {
 //   def get_next_epoch_committee_assignment(
 //        state: BeaconState,
 //        validator_index: ValidatorIndex,
-//        registry_change: bool) -> Tuple[List[ValidatorIndex], ShardNumber, SlotNumber, bool]:
+//        registry_change: bool) -> Tuple[List[ValidatorIndex], Shard, SlotNumber, bool]:
 //    """
 //    Return the committee assignment in the next epoch for ``validator_index`` and ``registry_change``.
 //    ``assignment`` returned is a tuple of the following form:
@@ -445,7 +453,7 @@ func VerifyBitfield(bitfield []byte, committeeSize int) (bool, error) {
 //            registry_change=registry_change,
 //        )
 //        selected_committees = [
-//            committee  # Tuple[List[ValidatorIndex], ShardNumber]
+//            committee  # Tuple[List[ValidatorIndex], Shard]
 //            for committee in crosslink_committees
 //            if validator_index in committee[0]
 //        ]
