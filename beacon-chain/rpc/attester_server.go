@@ -88,7 +88,7 @@ func (as *AttesterServer) AttestationDataAtSlot(ctx context.Context, req *pb.Att
 		epochBoundaryRoot = blockRoot[:]
 		justifiedBlockRoot = blockRoot[:]
 	}
-	return &pb.AttestationInfoResponse{
+	return &pb.AttestationDataResponse{
 		BeaconBlockRootHash32:    blockRoot[:],
 		EpochBoundaryRootHash32:  epochBoundaryRoot,
 		JustifiedEpoch:           beaconState.JustifiedEpoch,
