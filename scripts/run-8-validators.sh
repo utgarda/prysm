@@ -11,7 +11,7 @@ do
   KEYSTORE=$DATA_PATH/keystore$i
   DATADIR=$DATA_PATH/data$i
   
-  CMD="bazel-bin/validator/linux_amd64_pure_stripped/validator --demo-config --password $PASSWORD --keystore-path $KEYSTORE"
+  CMD="bazel-bin/validator/linux_amd64_pure_stripped/validator --demo-config --password $PASSWORD --keystore-path $KEYSTORE --enable-tracing"
 
   nohup $CMD $> /tmp/validator$i.log &
 done
