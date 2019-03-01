@@ -48,7 +48,7 @@ func (vs *ValidatorServer) ValidatorEpochAssignments(
 			len(req.PublicKey),
 		)
 	}
-	beaconState, err := vs.beaconDB.State()
+	beaconState, err := vs.beaconDB.State(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not get beacon state: %v", err)
 	}
@@ -99,9 +99,7 @@ func (vs *ValidatorServer) ValidatorEpochAssignments(
 
 // ValidatorCommitteeAtSlot gets the committee at a certain slot where a validator's index is contained.
 func (vs *ValidatorServer) ValidatorCommitteeAtSlot(ctx context.Context, req *pb.CommitteeRequest) (*pb.CommitteeResponse, error) {
-	ctx, span := trace.StartSpan(ctx, "beacon-chain.rpc.validator.ValidatorCommitteeAtSlot")
-	defer span.End()
-	beaconState, err := vs.beaconDB.State()
+	beaconState, err := vs.beaconDB.State(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch beacon state: %v", err)
 	}
@@ -138,19 +136,17 @@ func (vs *ValidatorServer) ValidatorCommitteeAtSlot(ctx context.Context, req *pb
 	}, nil
 }
 
-// NextEpochCommitteeAssignment returns the committee assignment response from a given validator public key.
-// The committee assignment response contains the following fields for the next epoch:
+// CommitteeAssignment returns the committee assignment response from a given validator public key.
+// The committee assignment response contains the following fields for the current and previous epoch:
 //	1.) The list of validators in the committee.
 //	2.) The shard to which the committee is assigned.
 //	3.) The slot at which the committee is assigned.
 //	4.) The bool signalling if the validator is expected to propose a block at the assigned slot.
-func (vs *ValidatorServer) NextEpochCommitteeAssignment(
+func (vs *ValidatorServer) CommitteeAssignment(
 	ctx context.Context,
-	req *pb.ValidatorIndexRequest) (*pb.CommitteeAssignmentResponse, error) {
-	ctx, span := trace.StartSpan(ctx, "beacon-chain.rpc.validator.NextEpochCommitteeAssignment")
-	defer span.End()
+	req *pb.ValidatorEpochAssignmentsRequest) (*pb.CommitteeAssignmentResponse, error) {
 
-	state, err := vs.beaconDB.State()
+	state, err := vs.beaconDB.State(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("could not fetch beacon state: %v", err)
 	}
@@ -160,7 +156,7 @@ func (vs *ValidatorServer) NextEpochCommitteeAssignment(
 	}
 
 	committee, shard, slot, isProposer, err :=
-		helpers.NextEpochCommitteeAssignment(state, uint64(idx), false)
+		helpers.CommitteeAssignment(state, req.EpochStart, uint64(idx), false)
 	if err != nil {
 		return nil, fmt.Errorf("could not get next epoch committee assignment: %v", err)
 	}
